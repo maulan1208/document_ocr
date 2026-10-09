@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f8fc">
+    <title>Trợ lý tài liệu</title>
+    <link rel="stylesheet" href="/chat.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="/" aria-label="Trợ lý tài liệu">
+          <span class="brand-mark" aria-hidden="true">T</span>
+          <span>Trợ lý tài liệu</span>
+        </a>
+        <button id="new-chat" class="new-chat" type="button">
+          <span aria-hidden="true">＋</span> Cuộc trò chuyện mới
+        </button>
+        <section class="library" aria-labelledby="library-title">
+          <div class="section-heading">
+            <h2 id="library-title">Tài liệu</h2>
+            <span id="document-count" class="count">0</span>
+          </div>
+          <label class="upload-button" for="file-input">
+            <span aria-hidden="true">↑</span> Tải tài liệu lên
+          </label>
+          <input id="file-input" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,application/pdf,image/png,image/jpeg,image/tiff" hidden>
+          <p class="upload-hint">PDF, PNG, JPG hoặc TIFF · tối đa 100 MB</p>
+          <p id="upload-status" class="upload-status" role="status"></p>
+        </section>
+        <section class="conversation-library" aria-labelledby="conversation-title">
+          <div class="section-heading">
+            <h2 id="conversation-title">Cuộc trò chuyện</h2>
+            <span id="conversation-count" class="count">0</span>
+          </div>
+          <div id="conversation-list" class="conversation-list" role="list"></div>
+        </section>
+        <p class="sidebar-note">Câu trả lời được tạo dựa trên nội dung tài liệu bạn đã tải lên.</p>
+      </aside>
+
+      <section class="chat-panel" aria-label="Trò chuyện với tài liệu">
+        <header class="topbar">
+          <div class="online-indicator"><span></span> Trợ lý AI</div>
+          <label class="scope-picker">
+            <span class="sr-only">Chọn phạm vi tài liệu</span>
+            <select id="document-select" aria-label="Phạm vi tài liệu">
+              <option value="">Tất cả tài liệu</option>
+            </select>
+          </label>
+        </header>
+
+        <div id="messages" class="messages" aria-live="polite">
+          <div class="welcome" id="welcome">
+            <div class="welcome-icon" aria-hidden="true">✦</div>
+            <p class="eyebrow">HỎI ĐÁP TÀI LIỆU</p>
+            <h1>Tài liệu của bạn,<br><span>câu trả lời tức thì.</span></h1>
+            <p class="welcome-copy">Tải tài liệu lên, sau đó đặt câu hỏi bằng ngôn ngữ tự nhiên. Mình sẽ tìm thông tin liên quan và dẫn nguồn rõ ràng.</p>
+            <div class="suggestions" aria-label="Câu hỏi gợi ý">
+              <!-- <button type="button" class="suggestion">Tóm tắt nội dung chính</button>
+              <button type="button" class="suggestion">Những điểm quan trọng là gì?</button>
+              <button type="button" class="suggestion">Tìm các mốc thời gian</button> -->
+            </div>
+          </div>
+        </div>
+
+        <form id="chat-form" class="composer">
+          <label class="sr-only" for="message-input">Nhập câu hỏi</label>
+          <textarea id="message-input" rows="1" maxlength="2000" placeholder="Hỏi bất cứ điều gì về tài liệu..." required></textarea>
+          <div class="composer-footer">
+            <span class="composer-hint">Enter để gửi · Shift + Enter xuống dòng</span>
+            <button id="send-button" class="send-button" type="submit" aria-label="Gửi câu hỏi">
+              <span>Gửi</span><span aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </form>
+        <p class="disclaimer">AI có thể mắc lỗi. Hãy kiểm tra lại thông tin quan trọng trong tài liệu gốc.</p>
+      </section>
+    </main>
+    <script src="/chat.js" defer></script>
+  </body>
+</html>
