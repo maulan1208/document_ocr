@@ -28,7 +28,7 @@ ALLOWED_TYPES = {
 }
 MAX_FILE_SIZE = 100 * 1024 * 1024
 
-@router.get("")
+@router.get("/all")
 def list_all_documents(conversation_id: int | None = None, db: Session = Depends(get_db),):
     query = db.query(Document).filter(Document.status == "processed")
 
