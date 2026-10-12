@@ -11,11 +11,7 @@ from app.api.dependencies import get_conversation_or_404, get_legacy_conversatio
 from app.db.session import get_db
 from app.models import Conversation, Document, Message
 from app.services.document_embeddings import store_document_embeddings
-from app.services.document_metadata import (
-    DOCUMENT_DATE_METADATA_VERSION,
-    extract_document_dates,
-    normalize_search_text,
-)
+from app.services.document_metadata import DOCUMENT_DATE_METADATA_VERSION, extract_document_dates, normalize_search_text
 from app.services.document_processor import process_document
 
 logger = logging.getLogger(__name__)
@@ -32,12 +28,30 @@ ALLOWED_TYPES = {
 }
 MAX_FILE_SIZE = 100 * 1024 * 1024
 
+@router.get("")
+def list_all_documents(conversation_id: int | None = None, db: Session = Depends(get_db),):
+    query = db.query(Document).filter(Document.status == "processed")
+
+    if conversation_id is not None:
+        get_conversation_or_404(db, conversation_id)
+        query = query.filter(Document.conversation_id == conversation_id)
+
+    documents = query.order_by(Document.id.desc()).all()
+
+    return [
+        {
+            "id": document.id,
+            "filename": document.original_filename,
+            "page_count": document.page_count,
+            "issued_date": document.issued_date,
+            "effective_date": document.effective_date,
+        }
+        for document in documents
+    ]
+
 
 @router.get("")
-def list_documents(
-    conversation_id: int | None = None,
-    db: Session = Depends(get_db),
-):
+def list_documents(conversation_id: int | None = None, db: Session = Depends(get_db),):
     query = db.query(Document).filter(Document.status == "processed")
     if conversation_id is not None:
         get_conversation_or_404(db, conversation_id)
@@ -54,13 +68,11 @@ def list_documents(
         for document in documents
     ]
 
-
 @router.post("/upload")
 async def upload_document(
     file: UploadFile = File(...),
     conversation_id: int | None = Form(default=None),
-    db: Session = Depends(get_db),
-):
+    db: Session = Depends(get_db),):
     conversation = (
         get_conversation_or_404(db, conversation_id)
         if conversation_id is not None
