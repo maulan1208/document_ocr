@@ -10,7 +10,7 @@ from app.db.session import get_db
 from app.models import Conversation, Document, Message
 from app.services.document_embeddings import store_document_embeddings
 from app.services.document_metadata import DOCUMENT_DATE_METADATA_VERSION, extract_document_dates, normalize_search_text
-from app.services.document_processor import process_document
+from app.services.document_processor import DocumentProcessingError, process_document,
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/documents", tags=["documents"])
@@ -22,6 +22,8 @@ ALLOWED_TYPES = {
     "image/png": "png",
     "image/jpeg": "jpg",
     "image/tiff": "tiff",
+    "text/plain": "txt",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
 }
 MAX_FILE_SIZE = 100 * 1024 * 1024
 
@@ -53,13 +55,14 @@ async def upload_document(
         if conversation_id is not None
         else get_legacy_conversation(db)
     )
-    file_type = ALLOWED_TYPES.get(file.content_type or "")
+    content_type = (file.content_type or "").split(";", 1)[0].strip().lower()
+    file_type = ALLOWED_TYPES.get(content_type)
 
     if not file_type:
         logger.warning("document_upload_rejected reason=unsupported_type")
         raise HTTPException(
             status_code=400,
-            detail="Chỉ chấp nhận PDF, PNG, JPEG hoặc TIFF.",
+            detail="Chỉ chấp nhận PDF, PNG, JPEG, TIFF, TXT hoặc DOCX.",
         )
 
     file_bytes = await file.read()
@@ -181,6 +184,10 @@ async def upload_document(
         }
     except HTTPException:
         raise
+    except DocumentProcessingError as error:
+        db.rollback()
+        file_path.unlink(missing_ok=True)
+        raise HTTPException(status_code=400, detail=str(error)) from error
     except Exception:
         logger.exception(
             "document_upload_failed file_type=%s file_size_bytes=%d",
