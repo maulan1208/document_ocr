@@ -10,7 +10,10 @@ from app.db.session import get_db
 from app.models import Conversation, Document, Message
 from app.services.document_embeddings import store_document_embeddings
 from app.services.document_metadata import DOCUMENT_DATE_METADATA_VERSION, extract_document_dates, normalize_search_text
-from app.services.document_processor import DocumentProcessingError, process_document,
+from app.services.document_processor import (
+    DocumentProcessingError,
+    process_document,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/documents", tags=["documents"])
