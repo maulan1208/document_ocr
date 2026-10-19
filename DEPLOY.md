@@ -64,13 +64,11 @@ curl --fail http://127.0.0.1:8000/health
 
 Kiểm tra `app` và `db` ở trạng thái khỏe mạnh trước khi cấu hình Nginx. Ứng dụng cần `OPENAI_API_KEY` ngay khi khởi động; nếu thiếu hoặc sai, xem log app.
 
-Khi khởi động, ứng dụng tự tạo cấu trúc lưu cuộc trò chuyện/tin nhắn, bật
-extension pgvector và gán các tài liệu đã có vào cuộc trò chuyện **Tài liệu cũ**.
+Khi khởi động, ứng dụng tự tạo cấu trúc lưu cuộc trò chuyện/tin nhắn, bật extension pgvector và gán các tài liệu đã có vào cuộc trò chuyện **Tài liệu cũ**.
 Nên sao lưu database trước khi cập nhật ứng dụng lần đầu có thay đổi này. Cơ sở
 dữ liệu dùng image `pgvector/pgvector:pg16`.
 
-Nếu nâng cấp từ phiên bản chưa lưu embedding, sau khi app và database đã khỏe
-mạnh, chạy backfill một lần:
+Nếu nâng cấp từ phiên bản chưa lưu embedding, sau khi app và database đã khỏe mạnh, chạy backfill một lần:
 
 ```bash
 docker compose exec app python -m app.services.document_embeddings

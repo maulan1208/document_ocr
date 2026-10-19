@@ -1,14 +1,11 @@
 from datetime import datetime, timezone
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-
 from app.api.dependencies import get_conversation_or_404
 from app.db.session import get_db
 from app.models import Conversation, Message
 
 router = APIRouter(prefix="/conversations", tags=["conversations"])
-
 
 @router.get("")
 def list_conversations(db: Session = Depends(get_db)):
@@ -26,7 +23,6 @@ def list_conversations(db: Session = Depends(get_db)):
         for item in conversations
     ]
 
-
 @router.post("")
 def create_conversation(db: Session = Depends(get_db)):
     conversation = Conversation(title="Cuộc trò chuyện mới")
@@ -39,7 +35,6 @@ def create_conversation(db: Session = Depends(get_db)):
         "updated_at": conversation.updated_at,
         "messages": [],
     }
-
 
 @router.get("/{conversation_id}")
 def get_conversation(conversation_id: int, db: Session = Depends(get_db)):

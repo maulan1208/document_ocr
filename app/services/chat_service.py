@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-
 from app.services.llm_service import generate_answer
 from app.services.search_service import search_documents
 

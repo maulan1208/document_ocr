@@ -10,7 +10,6 @@ from app.services.document_embeddings import (
     create_embeddings,
 )
 
-
 SEARCH_STOPWORDS = {
     "ap", "bao", "ban", "biet", "cac", "cai", "cap", "cho", "chinh",
     "co", "cua", "dang", "gi", "gan", "hay", "hien", "hiennay",
@@ -134,7 +133,6 @@ def _select_relevant_passages(text: str, query: str, terms: list[str]) -> str:
         for _, index, page in sorted(ranked_pages, key=lambda page: page[1])
         if index in selected_indexes
     )
-
 
 def search_documents(
     db: Session,

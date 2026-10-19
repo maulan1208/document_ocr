@@ -3,10 +3,8 @@ from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
-
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
-
 from app.api.dependencies import get_conversation_or_404, get_legacy_conversation
 from app.db.session import get_db
 from app.models import Conversation, Document, Message
@@ -19,7 +17,6 @@ router = APIRouter(prefix="/documents", tags=["documents"])
 
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-
 ALLOWED_TYPES = {
     "application/pdf": "pdf",
     "image/png": "png",
@@ -27,28 +24,6 @@ ALLOWED_TYPES = {
     "image/tiff": "tiff",
 }
 MAX_FILE_SIZE = 100 * 1024 * 1024
-
-@router.get("/all")
-def list_all_documents(conversation_id: int | None = None, db: Session = Depends(get_db),):
-    query = db.query(Document).filter(Document.status == "processed")
-
-    if conversation_id is not None:
-        get_conversation_or_404(db, conversation_id)
-        query = query.filter(Document.conversation_id == conversation_id)
-
-    documents = query.order_by(Document.id.desc()).all()
-
-    return [
-        {
-            "id": document.id,
-            "filename": document.original_filename,
-            "page_count": document.page_count,
-            "issued_date": document.issued_date,
-            "effective_date": document.effective_date,
-        }
-        for document in documents
-    ]
-
 
 @router.get("")
 def list_documents(conversation_id: int | None = None, db: Session = Depends(get_db),):

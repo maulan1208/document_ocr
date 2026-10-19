@@ -1,12 +1,10 @@
 import logging
 import re
 from time import perf_counter
-
 from openai import OpenAI
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import Engine, text
 from sqlalchemy.orm import Session
-
 from app.services.document_metadata import normalize_search_text
 
 logger = logging.getLogger(__name__)
@@ -18,15 +16,12 @@ CHUNK_OVERLAP_CHARACTERS = 200
 EMBEDDING_BATCH_SIZE = 64
 PAGE_MARKER = re.compile(r"\[Trang\s+(\d+)\]", re.IGNORECASE)
 
-
 class Settings(BaseSettings):
     openai_api_key: str
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-
 client = OpenAI(api_key=Settings().openai_api_key)
-
 
 def _split_page(text_value: str) -> list[tuple[int | None, str]]:
     markers = list(PAGE_MARKER.finditer(text_value))
@@ -42,7 +37,6 @@ def _split_page(text_value: str) -> list[tuple[int | None, str]]:
         if page_text:
             pages.append((int(marker.group(1)), page_text))
     return pages
-
 
 def _split_into_chunks(text_value: str) -> list[str]:
     chunks = []
@@ -62,7 +56,6 @@ def _split_into_chunks(text_value: str) -> list[str]:
         start = max(start + 1, end - CHUNK_OVERLAP_CHARACTERS)
     return chunks
 
-
 def chunk_document_text(text_value: str) -> list[tuple[int | None, str]]:
     chunks = []
     for page_number, page_text in _split_page(text_value):
@@ -75,7 +68,6 @@ def chunk_document_text(text_value: str) -> list[tuple[int | None, str]]:
             for chunk in page_chunks
         )
     return chunks
-
 
 def create_embeddings(inputs: list[str]) -> list[list[float]]:
     if not inputs:
@@ -113,7 +105,6 @@ def create_embeddings(inputs: list[str]) -> list[list[float]]:
     )
     return embeddings
 
-
 def store_document_embeddings(
     db: Session,
     document_id: int,
@@ -150,7 +141,6 @@ def store_document_embeddings(
     )
     return len(chunks)
 
-
 def migrate_vector_search(engine: Engine) -> None:
     with engine.begin() as connection:
         connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
@@ -180,7 +170,6 @@ def migrate_vector_search(engine: Engine) -> None:
             CREATE INDEX IF NOT EXISTS ix_document_chunks_search_text_fts
             ON document_chunks USING gin (to_tsvector('simple', search_text))
         """))
-
 
 def backfill_document_embeddings(engine: Engine, batch_size: int = 20) -> int:
     db = Session(bind=engine)
@@ -228,14 +217,11 @@ def backfill_document_embeddings(engine: Engine, batch_size: int = 20) -> int:
     finally:
         db.close()
 
-
 def main() -> None:
     from app.db.session import engine
-
     migrate_vector_search(engine)
     processed = backfill_document_embeddings(engine)
     print(f"Đã tạo embedding cho {processed} tài liệu.")
-
 
 if __name__ == "__main__":
     main()

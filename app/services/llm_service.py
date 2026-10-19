@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
     openai_api_key: str
-    chat_model: str = "gpt-4o-mini"
+    chat_model: str = "gpt-5-mini"
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -38,8 +38,7 @@ def generate_answer(question: str, context: str, history: list[dict[str, str]] |
                 "Chỉ sử dụng thông tin trong CONTEXT để trả lời. "
                 "Trả lời trực tiếp bằng cách tổng hợp các đoạn liên quan "
                 "trong CONTEXT. Không chỉ nhắc tên đề mục rồi bảo người "
-                "dùng tự tham khảo tài liệu nếu CONTEXT đã chứa nội dung "
-                "để trả lời. "
+                "dùng tự tham khảo tài liệu nếu CONTEXT đã chứa nội dung để trả lời. "
                 "Nếu context không đủ thông tin, hãy nói rõ "
                 "rằng tài liệu được tìm thấy chưa đủ căn cứ. "
                 "Không tự bịa chính sách hoặc quy định. "

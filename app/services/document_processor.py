@@ -8,7 +8,6 @@ from PIL import Image, ImageOps
 
 logger = logging.getLogger(__name__)
 
-
 def extract_image_text(file_bytes: bytes, page_number: int | None = None) -> str:
     """Nhận diện chữ từ ảnh bằng Tesseract OCR."""
     started_at = perf_counter()

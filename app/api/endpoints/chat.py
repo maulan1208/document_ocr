@@ -13,7 +13,6 @@ from app.services.chat_service import chat as run_chat
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["chat"])
 
-
 @router.post("/chat", response_model=ChatResponse)
 def chat_api(request: ChatRequest, db: Session = Depends(get_db)):
     conversation = (
@@ -47,8 +46,7 @@ def chat_api(request: ChatRequest, db: Session = Depends(get_db)):
     try:
         if (
             conversation.title == "Cuộc trò chuyện mới"
-            and not any(item.role == "user" for item in history_messages)
-        ):
+            and not any(item.role == "user" for item in history_messages)):
             title = request.message.strip()
             conversation.title = title[:117] + ("..." if len(title) > 117 else "")
         conversation.updated_at = datetime.now(timezone.utc)

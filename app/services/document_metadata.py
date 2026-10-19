@@ -36,7 +36,6 @@ ISSUED_CUES = (
     "issued on",
 )
 
-
 def _normalize(text_value: str) -> str:
     decomposed = unicodedata.normalize("NFD", text_value.lower())
     return "".join(
@@ -45,10 +44,8 @@ def _normalize(text_value: str) -> str:
         if unicodedata.category(character) != "Mn"
     )
 
-
 def normalize_search_text(text_value: str) -> str:
     return _normalize(text_value)
-
 
 def _parse_date(match: re.Match[str]) -> date | None:
     value = match.group()
@@ -64,7 +61,6 @@ def _parse_date(match: re.Match[str]) -> date | None:
         return date(year, month, day)
     except ValueError:
         return None
-
 
 def extract_document_dates(extracted_text: str) -> dict[str, date | None]:
     issued_dates: list[date] = []
@@ -99,7 +95,6 @@ def extract_document_dates(extracted_text: str) -> dict[str, date | None]:
         "issued_date": max(issued_dates, default=None),
         "effective_date": max(effective_dates, default=None),
     }
-
 
 def migrate_document_dates(engine: Engine) -> None:
     with engine.begin() as connection:

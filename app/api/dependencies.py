@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from app.models import Conversation
 from app.services.conversation_migration import LEGACY_CONVERSATION_TITLE
 
-
 def get_conversation_or_404(
     db: Session,
     conversation_id: int,
@@ -16,7 +15,6 @@ def get_conversation_or_404(
             detail="Không tìm thấy cuộc trò chuyện.",
         )
     return conversation
-
 
 def get_legacy_conversation(db: Session) -> Conversation:
     conversation = (
