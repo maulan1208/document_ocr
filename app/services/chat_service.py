@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from app.models import Document
 from app.services.llm_service import generate_answer
 from app.services.search_service import search_documents
 
@@ -7,8 +8,7 @@ def search_for_chat(
     question: str,
     document_id: int | None = None,
     conversation_id: int | None = None,
-    limit: int = 5,
-) -> list[dict]:
+    limit: int = 5) -> list[dict]:
     return [
         {
             "id": item["id"],
@@ -31,8 +31,7 @@ def chat(
     message: str,
     document_id: int | None = None,
     conversation_id: int | None = None,
-    history: list[dict[str, str]] | None = None,
-) -> dict:
+    history: list[dict[str, str]] | None = None,) -> dict:
     sources = search_for_chat(
         db=db,
         question=message,
@@ -53,6 +52,23 @@ def chat(
                 break
 
     if not sources:
+        document_query = db.query(Document.id)
+        if document_id is not None:
+            document_query = document_query.filter(Document.id == document_id)
+        if conversation_id is not None:
+            document_query = document_query.filter(
+                Document.conversation_id == conversation_id
+            )
+
+        if document_query.first() is None:
+            return {
+                "reply": (
+                    "Cuộc trò chuyện này chưa có tài liệu. "
+                    "Bạn hãy upload tài liệu trước nhé."
+                ),
+                "sources": [],
+            }
+
         return {
             "reply": (
                 "Mình chưa tìm thấy nội dung phù hợp trong "
