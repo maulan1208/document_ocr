@@ -213,27 +213,54 @@ document.querySelectorAll(".suggestion").forEach((button) => {
 });
 
 fileInput.addEventListener("change", async () => {
-  const file = fileInput.files[0];
-  if (!file) return;
+  const files = Array.from(fileInput.files);
+  if (!files.length) return;
 
   uploadStatus.classList.remove("error");
-  uploadStatus.textContent = `Đang xử lý ${file.name}...`;
 
   try {
     if (activeConversationId === null) await createConversation();
-    const body = new FormData();
-    body.append("file", file);
-    body.append("conversation_id", String(activeConversationId));
-    const response = await fetch("/documents/upload", { method: "POST", body });
-    const result = await response.json();
-    if (!response.ok) {
-      const detail = typeof result.detail === "string" ? result.detail : "Không thể tải tài liệu lên.";
-      throw new Error(detail);
+    const conversationId = activeConversationId;
+    const uploaded = [];
+    const failed = [];
+
+    for (const [index, file] of files.entries()) {
+      uploadStatus.textContent =
+        `Đang xử lý tài liệu ${index + 1}/${files.length}: ${file.name}...`;
+
+      try {
+        const body = new FormData();
+        body.append("file", file);
+        body.append("conversation_id", String(conversationId));
+        const response = await fetch("/documents/upload", { method: "POST", body });
+        const result = await response.json();
+        if (!response.ok) {
+          const detail = typeof result.detail === "string"
+            ? result.detail
+            : "Không thể tải tài liệu lên.";
+          throw new Error(detail);
+        }
+        uploaded.push(result);
+      } catch (error) {
+        failed.push({ filename: file.name, message: error.message });
+      }
     }
+
     await loadDocuments();
     await loadConversations();
-    documentSelect.value = String(result.id);
-    uploadStatus.textContent = `Đã sẵn sàng: ${result.filename}`;
+    if (activeConversationId === conversationId && uploaded.length) {
+      documentSelect.value = String(uploaded[uploaded.length - 1].id);
+    }
+
+    const status = `Đã tải ${uploaded.length}/${files.length} tài liệu.`;
+    if (failed.length) {
+      uploadStatus.textContent = `${status} Lỗi: ${failed
+        .map((item) => `${item.filename} (${item.message})`)
+        .join("; ")}`;
+      uploadStatus.classList.add("error");
+    } else {
+      uploadStatus.textContent = status;
+    }
   } catch (error) {
     uploadStatus.textContent = error.message;
     uploadStatus.classList.add("error");
