@@ -59,6 +59,15 @@ button { cursor: pointer; }
 .user .avatar { color: #fff; background: #34344a; }
 .message-content { max-width: min(650px, 82%); }
 .bubble { padding: 12px 15px; border: 1px solid #e9e9f1; border-radius: 4px 14px 14px; color: #414258; background: #fff; font-size: 13px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; box-shadow: 0 3px 12px #20203a05; }
+.bubble.markdown { white-space: normal; }
+.bubble.markdown > :first-child { margin-top: 0; }
+.bubble.markdown > :last-child { margin-bottom: 0; }
+.bubble.markdown h1, .bubble.markdown h2, .bubble.markdown h3, .bubble.markdown h4, .bubble.markdown h5, .bubble.markdown h6 { margin: 12px 0 6px; line-height: 1.4; }
+.bubble.markdown p { margin: 8px 0; }
+.bubble.markdown ul, .bubble.markdown ol { margin: 8px 0; padding-left: 22px; }
+.bubble.markdown li + li { margin-top: 3px; }
+.bubble.markdown code { padding: 1px 4px; border-radius: 4px; color: #5546c8; background: #f0effb; font-family: monospace; }
+.typing .bubble.markdown > p { display: inline; margin: 0; }
 .user .bubble { border-color: #6c60d3; border-radius: 14px 4px 14px 14px; color: #fff; background: #6c60d3; }
 .typing .bubble { color: #818298; }
 .typing-dots { display: inline-flex; gap: 4px; margin-left: 8px; }

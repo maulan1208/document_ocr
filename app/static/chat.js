@@ -13,6 +13,83 @@ const conversationCount = document.querySelector("#conversation-count");
 
 let activeConversationId = null;
 
+function appendInlineMarkdown(parent, text) {
+  const tokenPattern = /(\*\*[^*\n]+\*\*|`[^`\n]+`)/g;
+  let position = 0;
+
+  for (const match of text.matchAll(tokenPattern)) {
+    const token = match[0];
+    const index = match.index;
+    parent.append(document.createTextNode(text.slice(position, index)));
+
+    const element = document.createElement(token.startsWith("**") ? "strong" : "code");
+    element.textContent = token.startsWith("**") ? token.slice(2, -2) : token.slice(1, -1);
+    parent.append(element);
+    position = index + token.length;
+  }
+
+  parent.append(document.createTextNode(text.slice(position)));
+}
+
+function renderMarkdown(text) {
+  const fragment = document.createDocumentFragment();
+  const lines = text.split(/\r?\n/);
+  let index = 0;
+
+  while (index < lines.length) {
+    const line = lines[index];
+    if (!line.trim()) {
+      index += 1;
+      continue;
+    }
+
+    const heading = line.match(/^ {0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+    if (heading) {
+      const element = document.createElement(`h${heading[1].length}`);
+      appendInlineMarkdown(element, heading[2]);
+      fragment.append(element);
+      index += 1;
+      continue;
+    }
+
+    const listItem = line.match(/^ {0,3}([-*+]|\d+[.)])\s+(.+)$/);
+    if (listItem) {
+      const ordered = /^\d/.test(listItem[1]);
+      const list = document.createElement(ordered ? "ol" : "ul");
+      const markerPattern = ordered
+        ? /^ {0,3}\d+[.)]\s+(.+)$/
+        : /^ {0,3}[-*+]\s+(.+)$/;
+
+      while (index < lines.length) {
+        const item = lines[index].match(markerPattern);
+        if (!item) break;
+        const element = document.createElement("li");
+        appendInlineMarkdown(element, item[1]);
+        list.append(element);
+        index += 1;
+      }
+
+      fragment.append(list);
+      continue;
+    }
+
+    const paragraph = document.createElement("p");
+    while (
+      index < lines.length &&
+      lines[index].trim() &&
+      !/^ {0,3}#{1,6}\s+/.test(lines[index]) &&
+      !/^ {0,3}(?:[-*+]|\d+[.)])\s+/.test(lines[index])
+    ) {
+      if (paragraph.childNodes.length) paragraph.append(document.createElement("br"));
+      appendInlineMarkdown(paragraph, lines[index]);
+      index += 1;
+    }
+    fragment.append(paragraph);
+  }
+
+  return fragment;
+}
+
 function addMessage(role, text) {
   if (welcomeElement?.isConnected) welcomeElement.remove();
 
@@ -26,7 +103,12 @@ function addMessage(role, text) {
   content.className = "message-content";
   const bubble = document.createElement("div");
   bubble.className = "bubble";
-  bubble.textContent = text;
+  if (role === "assistant") {
+    bubble.classList.add("markdown");
+    bubble.append(renderMarkdown(text));
+  } else {
+    bubble.textContent = text;
+  }
   content.append(bubble);
 
   row.append(avatar, content);
