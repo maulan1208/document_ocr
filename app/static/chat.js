@@ -35,6 +35,7 @@ function renderMarkdown(text) {
   const fragment = document.createDocumentFragment();
   const lines = text.split(/\r?\n/);
   let index = 0;
+  let nextOrderedListNumber = 1;
 
   while (index < lines.length) {
     const line = lines[index];
@@ -48,6 +49,7 @@ function renderMarkdown(text) {
       const element = document.createElement(`h${heading[1].length}`);
       appendInlineMarkdown(element, heading[2]);
       fragment.append(element);
+      nextOrderedListNumber = 1;
       index += 1;
       continue;
     }
@@ -56,6 +58,10 @@ function renderMarkdown(text) {
     if (listItem) {
       const ordered = /^\d/.test(listItem[1]);
       const list = document.createElement(ordered ? "ol" : "ul");
+      if (ordered) {
+        const markerNumber = Number.parseInt(listItem[1], 10);
+        list.start = markerNumber === 1 ? nextOrderedListNumber : markerNumber;
+      }
       const markerPattern = ordered
         ? /^ {0,3}\d+[.)]\s+(.+)$/
         : /^ {0,3}[-*+]\s+(.+)$/;
@@ -69,6 +75,9 @@ function renderMarkdown(text) {
         index += 1;
       }
 
+      if (ordered) {
+        nextOrderedListNumber = list.start + list.childElementCount;
+      }
       fragment.append(list);
       continue;
     }
@@ -85,6 +94,7 @@ function renderMarkdown(text) {
       index += 1;
     }
     fragment.append(paragraph);
+    nextOrderedListNumber = 1;
   }
 
   return fragment;
