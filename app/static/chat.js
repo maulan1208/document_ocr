@@ -54,7 +54,7 @@ function renderMarkdown(text) {
       continue;
     }
 
-    const listItem = line.match(/^ {0,3}([-*+]|\d+[.)])\s+(.+)$/);
+    const listItem = line.match(/^ {0,3}([-*+•]|\d+[.)])\s+(.+)$/);
     if (listItem) {
       const ordered = /^\d/.test(listItem[1]);
       const list = document.createElement(ordered ? "ol" : "ul");
@@ -64,7 +64,7 @@ function renderMarkdown(text) {
       }
       const markerPattern = ordered
         ? /^ {0,3}\d+[.)]\s+(.+)$/
-        : /^ {0,3}[-*+]\s+(.+)$/;
+        : /^ {0,3}[-*+•]\s+(.+)$/;
 
       while (index < lines.length) {
         const item = lines[index].match(markerPattern);
@@ -87,7 +87,7 @@ function renderMarkdown(text) {
       index < lines.length &&
       lines[index].trim() &&
       !/^ {0,3}#{1,6}\s+/.test(lines[index]) &&
-      !/^ {0,3}(?:[-*+]|\d+[.)])\s+/.test(lines[index])
+      !/^ {0,3}(?:[-*+•]|\d+[.)])\s+/.test(lines[index])
     ) {
       if (paragraph.childNodes.length) paragraph.append(document.createElement("br"));
       appendInlineMarkdown(paragraph, lines[index]);
