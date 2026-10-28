@@ -20,7 +20,7 @@ settings = Settings()
 client = OpenAI(api_key=settings.openai_api_key)
 
 ORDERED_LIST_ITEM = re.compile(r"^( {0,3})(\d+)([.)])([ \t]+.*)$")
-UNORDERED_LIST_ITEM = re.compile(r"^ {0,3}[-*+][ \t]+")
+UNORDERED_LIST_ITEM = re.compile(r"^ {0,3}[-*+•][ \t]+")
 
 
 def _normalize_ordered_list_numbering(answer: str) -> str:
