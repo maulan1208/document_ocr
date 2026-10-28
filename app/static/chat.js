@@ -113,7 +113,8 @@ function addMessage(role, text) {
 
   row.append(avatar, content);
   messagesElement.append(row);
-  row.scrollIntoView({ block: "end" });
+  // row.scrollIntoView({ block: "end" });
+  messagesElement.scrollTop = messagesElement.scrollHeight;
   return row;
 }
 
