@@ -50,7 +50,9 @@ button { cursor: pointer; }
   height: 100vh;
   padding: 0 34px;
   overflow: hidden; }
-.topbar {    position: relative;
+.topbar {
+  position: sticky;
+  top: 0;
   z-index: 10;
   display: flex;
   height: 72px;
@@ -58,7 +60,8 @@ button { cursor: pointer; }
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #e9eaf1;
-  background: #f7f8fc; }
+  background: #f7f8fc;
+}
 .online-indicator { display: flex; align-items: center; gap: 9px; color: #4e5068; font-size: 13px; font-weight: 600; }
 .online-indicator span { width: 7px; height: 7px; border-radius: 50%; background: #54bd91; box-shadow: 0 0 0 4px #e5f5ed; }
 .scope-picker select { max-width: 230px; padding: 9px 32px 9px 12px; border: 1px solid #e6e6ef; border-radius: 9px; outline: none; color: #54566e; background: #fff; font-size: 12px; }
@@ -129,7 +132,7 @@ button { cursor: pointer; }
 @keyframes bounce { to { transform: translateY(-3px); opacity: .45; } }
 
 @media (max-width: 760px) {
-  .app-shell { min-height: 100vh; display: block; }
+  .app-shell { height: auto; min-height: 100vh; display: block; overflow: visible; }
   .sidebar { position: relative; width: 100%; height: auto; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; overflow: visible; padding: 12px 16px; }
   .brand { font-size: 14px; }
   .brand-mark { width: 30px; height: 30px; }
@@ -142,10 +145,17 @@ button { cursor: pointer; }
   .conversation-library .section-heading { display: flex; margin: 0; }
   .conversation-list { min-width: 0; flex-direction: row; overflow-x: auto; }
   .conversation-item { width: auto; max-width: 180px; flex: 0 0 auto; padding: 7px 9px; font-size: 10px; }
-  .chat-panel { position: relative; display: flex; min-height: calc(100vh - 55px); padding: 0 16px; }
+   .chat-panel {
+    position: relative;
+    display: flex;
+    height: calc(100vh - 55px);
+    min-height: 0;
+    padding: 0 16px;
+    overflow: hidden;
+  }
   .topbar { height: 59px; flex-basis: 59px; }
   .scope-picker select { max-width: 170px; }
-  .messages { padding-top: 22px; }
+  .messages { flex: 1 1 0; min-height: 0; overflow-y: auto; padding-top: 22px; }
   .welcome { padding-bottom: 20px; }
   .welcome-copy { max-width: 360px; font-size: 13px; }
   .suggestions { gap: 6px; margin-top: 18px; }
