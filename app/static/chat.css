@@ -152,3 +152,44 @@ button { cursor: pointer; }
   .suggestion { font-size: 10px; }
   .composer-hint { font-size: 9px; }
 }
+
+/* Desktop: giữ header và ô nhập cố định,
+   chỉ cho phép vùng tin nhắn cuộn */
+@media (min-width: 761px) {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .app-shell {
+    height: 100vh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .chat-panel {
+    height: 100vh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .topbar {
+    position: relative;
+    z-index: 10;
+    flex: 0 0 72px;
+    background: #f7f8fc;
+  }
+
+  .messages {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .composer,
+  .disclaimer {
+    flex-shrink: 0;
+  }
+}
