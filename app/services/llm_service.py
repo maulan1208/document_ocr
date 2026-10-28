@@ -1,4 +1,5 @@
 import logging
+import re
 from time import perf_counter
 
 from openai import OpenAI
@@ -17,6 +18,47 @@ class Settings(BaseSettings):
 
 settings = Settings()
 client = OpenAI(api_key=settings.openai_api_key)
+
+ORDERED_LIST_ITEM = re.compile(r"^( {0,3})(\d+)([.)])([ \t]+.*)$")
+UNORDERED_LIST_ITEM = re.compile(r"^ {0,3}[-*+][ \t]+")
+
+
+def _normalize_ordered_list_numbering(answer: str) -> str:
+    lines = answer.splitlines()
+    normalized_lines = []
+    expected_numbers: dict[int, int] = {}
+    in_code_block = False
+
+    for line in lines:
+        stripped_line = line.lstrip()
+        if stripped_line.startswith(("```", "~~~")):
+            in_code_block = not in_code_block
+            expected_numbers.clear()
+            normalized_lines.append(line)
+            continue
+        if in_code_block:
+            normalized_lines.append(line)
+            continue
+
+        match = ORDERED_LIST_ITEM.match(line)
+        if match:
+            indentation = len(match.group(1))
+            number = int(match.group(2))
+            expected = expected_numbers.get(indentation)
+            if expected is not None and number == 1:
+                number = expected
+            expected_numbers[indentation] = number + 1
+            normalized_lines.append(
+                f"{match.group(1)}{number}{match.group(3)}{match.group(4)}"
+            )
+            continue
+
+        if line.strip() and not UNORDERED_LIST_ITEM.match(line):
+            expected_numbers.clear()
+        normalized_lines.append(line)
+
+    return "\n".join(normalized_lines)
+
 
 def generate_answer(question: str, context: str, history: list[dict[str, str]] | None = None,) -> str:
     previous_messages = "\n".join(
@@ -74,4 +116,4 @@ def generate_answer(question: str, context: str, history: list[dict[str, str]] |
         settings.chat_model,
         (perf_counter() - started_at) * 1000,
     )
-    return response.output_text
+    return _normalize_ordered_list_numbering(response.output_text)
